@@ -1,0 +1,25 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "Groupomania : Créez un réseau social d’entreprise",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wibeunltd/WillyBeaucal_7_20042021.git"
+  },
+  "keywords": [
+    "#ReseauSocial",
+    "#SocialNetwork",
+    "#Groupomania"
+  ],
+  "author": "wibeunltd",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/wibeunltd/WillyBeaucal_7_20042021/issues"
+  },
+  "homepage": "https://github.com/wibeunltd/WillyBeaucal_7_20042021#readme"
+}
