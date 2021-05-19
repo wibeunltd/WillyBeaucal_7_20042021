@@ -3,6 +3,9 @@ const express = require('express');
 const helmet = require('helmet');
 const path = require('path');
 
+// Sécurisation des variables d'environnement par un stockage séparé
+require('dotenv').config();
+
 // Création de l'instance de l'application
 const app = express();
 
