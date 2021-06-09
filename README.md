@@ -1,5 +1,5 @@
 # Créez un réseau social d’entreprise
-Développeur depuis plus d'un an chez CONNECT-E, une petite agence web regroupant une douzaine d'employés, votre nouveau projet consiste à construire un réseau social interne pour les employés de Groupomania.
+Construire un réseau social interne pour les employés d'une entreprise.
 
 ## Lancement
  - Dossier backend
