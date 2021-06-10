@@ -2,7 +2,7 @@
   "development": {
     "username": "root",
     "password": "zxiJ1lTo(TyYJ9G6",
-    "database": "literally_network",
+    "database": "literally_development",
     "host": "localhost",
     "port": "3308",
     "dialect": "mysql"
@@ -10,7 +10,7 @@
   "test": {
     "username": "root",
     "password": "zxiJ1lTo(TyYJ9G6",
-    "database": "literally_network",
+    "database": "literally_test",
     "host": "localhost",
     "port": "3308",
     "dialect": "mysql"
@@ -18,7 +18,7 @@
   "production": {
     "username": "root",
     "password": "zxiJ1lTo(TyYJ9G6",
-    "database": "literally_network",
+    "database": "literally_production",
     "host": "localhost",
     "port": "3308",
     "dialect": "mysql"
