@@ -1,23 +1,26 @@
 {
   "development": {
     "username": "root",
-    "password": "Groupom@nia",
-    "database": "database_development",
-    "host": "127.0.0.1",
+    "password": "zxiJ1lTo(TyYJ9G6",
+    "database": "literally_network",
+    "host": "localhost",
+    "port": "3308",
     "dialect": "mysql"
   },
   "test": {
     "username": "root",
-    "password": "Groupom@nia",
-    "database": "database_test",
-    "host": "127.0.0.1",
+    "password": "zxiJ1lTo(TyYJ9G6",
+    "database": "literally_network",
+    "host": "localhost",
+    "port": "3308",
     "dialect": "mysql"
   },
   "production": {
     "username": "root",
-    "password": "Groupom@nia",
-    "database": "database_production",
-    "host": "127.0.0.1",
+    "password": "zxiJ1lTo(TyYJ9G6",
+    "database": "literally_network",
+    "host": "localhost",
+    "port": "3308",
     "dialect": "mysql"
   }
 }
