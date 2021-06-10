@@ -28,5 +28,6 @@ app.use((req, res, next) => {
 
 // Extraction des données JSON du corps de requête
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 module.exports = app;
