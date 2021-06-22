@@ -1,6 +1,9 @@
 // Déclaration et utilisation du module standard http pour créer le serveur HTTP
 const http = require('http');
 
+// Sécurisation des variables d'environnement par un stockage séparé
+require('dotenv').config();
+
 // Déclaration de la constante app, pour la création de l'instance de l'application
 const app = require('./app');
 
@@ -46,7 +49,7 @@ server.on('error', errorHandler);
 server.on('listening', () => {
   const address = server.address();
   const bind = typeof address === 'string' ? 'pipe ' + address : 'port ' + port;
-  console.log('🚀 Listening on ' + bind);
+  console.log('🚀 En écoute sur le ' + bind);
 });
 
 // Port d'écoute du serveur
