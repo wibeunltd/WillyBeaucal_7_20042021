@@ -24,7 +24,8 @@ module.exports = {
       },
       lastLogin: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
+        defaultValue: literal('CURRENT_TIMESTAMP')
       },
       biography: {
         allowNull: true,
