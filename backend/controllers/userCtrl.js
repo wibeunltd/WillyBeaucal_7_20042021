@@ -1,30 +1,30 @@
-// Déclarations des modules requis
+/** Déclarations des modules requis */ 
 const bcrypt    = require('bcrypt');
 const userAuth  = require('../middleware/userAuth');
 const { User }  = require('../models');
 
-// Sécurisation des variables d'environnement par un stockage séparé
+/** Sécurisation des variables d'environnement par un stockage séparé */ 
 require('dotenv').config();
 
-// Regex
-const emailRegex     = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-const passwordRegex  = /^(?=.*\d).{4,8}$/;
-
-// Inscription d'un nouvel utilisateur
+/** Inscription d'un nouvel utilisateur
+ @type {{firstname: string, lastname: string, email: string, password: string, pwdConfirm: string,}}
+ * */ 
 exports.register = (req, res, next) => {
-    // Variables
-    let username    = req.body.username;
+    /** Informations utilisateur */
+    let firstname   = req.body.firstname;
+    let lastname    = req.body.lastname;
     let email       = req.body.email;
     let password    = req.body.password;
+    let pwdConfirm  = req.body.pwdConfirm;
     
     //Vérification des variables
-    if (username == null || email == null || password == null) {
+    if (firstname == null || lastname == null || email == null || password == null) {
         return res.status(400).json({'error' : 'Merci de remplir l\'ensemble des champs'});
     }
 
-    if (username.length >= 13 || username.length <= 4) {
+    /* if (username.length >= 13 || username.length <= 4) {
         return res.status(400).json({ 'error': 'wrong username (must be length 5 - 12)' });
-    }
+    } */
   
     if (!emailRegex.test(email)) {
         return res.status(400).json({ 'error': 'email is not valid' });
@@ -43,7 +43,8 @@ exports.register = (req, res, next) => {
             bcrypt.hash(password, 10)
             .then(hash => {
                 const user = User.create({
-                    username    : username,
+                    firstname   : firstname,
+                    lastname    : lastname,
                     email       : email,
                     password    : hash,
                     isAdmin     : false,
@@ -143,7 +144,8 @@ exports.updatetUser = (req, res, next) => {
         if(userFound) {
             userFound.update({
                 email: (email ? email : userFound.email),
-                username: (username ? username : userFound.username),
+                firstname: (firstname ? firstname : userFound.firstname),
+                lastname: (lastname ? lastname : userFound.lastname),
                 biography: (biography ? biography : userFound.biography)
             }) 
         } else {

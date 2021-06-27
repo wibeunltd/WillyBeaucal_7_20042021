@@ -8,9 +8,12 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      username: {
+      firstname: {
         allowNull: false,
-        unique: true,
+        type: Sequelize.STRING(191)
+      },
+      lastname: {
+        allowNull: false,
         type: Sequelize.STRING(191)
       },
       email: {
@@ -25,7 +28,7 @@ module.exports = {
       lastLogin: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: literal('CURRENT_TIMESTAMP')
+        defaultValue: Sequelize.fn('NOW'),
       },
       biography: {
         allowNull: true,

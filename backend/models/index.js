@@ -27,7 +27,7 @@ if(process.env.NODE_ENV !== 'undefined' && process.env.NODE_ENV === 'development
   sequelize = new Sequelize(config.DB, config.USER, config.PASSWORD, {
     host: config.HOST,
     port: config.PORT,
-    dialect: process.env.DIALECT,
+    dialect: 'mysql',
   });
 
 } else if (process.env.NODE_ENV !== 'undefined' && process.env.NODE_ENV === 'production') {
