@@ -1,0 +1,16 @@
+# Modifier les informations, puis renommer le fichier en .env
+# Exemple de modification, si votre base de données s'appelle talkmania, vous devriez avoir DB_DATABASE =talkmania
+
+Base de données
+DB_USERNAME         ={your database username}
+DB_PASSWORD         ={your database password}
+DB_DATABASE         ={your database name}
+DB_DATABASE_TEST    ={your database test name}
+DB_DATABASE_PROD    ={your database production name}
+DB_HOST             ={your host (127.0.0.1 || localhost)}
+DB_PORT             ={your database port (3306 || 3308 || port you configured for mysql)}
+DIALECT             =mysql
+NODE_ENV            ={environment you want to execute (development || test || production)}
+
+// Token
+JWT_TOKEN={your secret token}
