@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 module.exports = {
+  /** Création du token */
     generateToken: function(userData) {
         return jwt.sign({
           userId: userData.id,
@@ -15,10 +16,11 @@ module.exports = {
           expiresIn: '1h'
         })
       },
-      parseAuthorization: function(authorization) {
+  /** Vérification de l'autorisation : token et id utilisateur */
+    parseAuthorization: function(authorization) {
         return (authorization != null) ? authorization.replace('Bearer ', '') : null;
       },
-      getUserId: function(authorization) {
+    getUserId: function(authorization) {
         var userId = -1;
         var token = module.exports.parseAuthorization(authorization);
         if(token != null) {

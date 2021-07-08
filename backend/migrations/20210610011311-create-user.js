@@ -28,7 +28,6 @@ module.exports = {
       lastLogin: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.fn('NOW'),
       },
       biography: {
         allowNull: true,

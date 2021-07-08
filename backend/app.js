@@ -1,6 +1,7 @@
 // Déclarations des modules requis 
 const express = require('express');
 const helmet  = require('helmet');
+const cors    = require('cors');
 const path    = require('path');
 
 // Sécurisation des variables d'environnement par un stockage séparé
@@ -15,12 +16,14 @@ const app = express();
 // Sécurisation contre les attaques XSS
 app.use(helmet());
 
+app.use(cors());
+
 // Permission des requêtes CORS
 app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-    next();
+  res.setHeader('Access-Control-Allow-Origin', process.env.ALLOWED_ORIGINS);
+  res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+  next();
   });
 
 // Extraction des données JSON du corps de requête

@@ -1,96 +1,80 @@
-/** Déclarations des modules requis */ 
+/** Déclarations des modules requis */
 const bcrypt    = require('bcrypt');
 const userAuth  = require('../middleware/userAuth');
 const { User }  = require('../models');
+
 
 /** Sécurisation des variables d'environnement par un stockage séparé */ 
 require('dotenv').config();
 
 /** Inscription d'un nouvel utilisateur
- @type {{firstname: string, lastname: string, email: string, password: string, pwdConfirm: string,}}
+ * @type {{firstname: string, lastname: string, email: string, password: string}}
  * */ 
 exports.register = (req, res, next) => {
     /** Informations utilisateur */
-    let firstname   = req.body.firstname;
-    let lastname    = req.body.lastname;
-    let email       = req.body.email;
-    let password    = req.body.password;
-    let pwdConfirm  = req.body.pwdConfirm;
-    
-    //Vérification des variables
-    if (firstname == null || lastname == null || email == null || password == null) {
-        return res.status(400).json({'error' : 'Merci de remplir l\'ensemble des champs'});
-    }
-
-    /* if (username.length >= 13 || username.length <= 4) {
-        return res.status(400).json({ 'error': 'wrong username (must be length 5 - 12)' });
-    } */
-  
-    if (!emailRegex.test(email)) {
-        return res.status(400).json({ 'error': 'email is not valid' });
-    }
-  
-    if (!passwordRegex.test(password)) {
-        return res.status(400).json({ 'error': 'password invalid (must length 4 - 8 and include 1 number at least)' });
-    }
-
+    const { firstname, lastname, email, password } = req.body;
+   
+    /** Vérification de l'utilisateur */
     User.findOne({
         attributes: ['email'],
-        where: { email: email}
+        where: { email: email }
     })
     .then(userFound => {
         if(!userFound) {
             bcrypt.hash(password, 10)
             .then(hash => {
                 const user = User.create({
-                    firstname   : firstname,
-                    lastname    : lastname,
-                    email       : email,
-                    password    : hash,
-                    isAdmin     : false,
+                    firstname       : firstname,
+                    lastname        : lastname,
+                    email           : email,
+                    password        : hash,
+                    profilePicture  : "https://eu.ui-avatars.com/api/?background=random&name=" + firstname + "+" + lastname,
+                    isAdmin         : false,
                 })
                 .then(newUser => {
                     return res.status(201).json({
-                        'message': 'Utilisateur créé',
-                        'userId': newUser.id
+                        'message': 'Inscription réalisée avec succès',
+                        'User ID': newUser.id
                     })
                 })
                 .catch(error => {
-                    return res.status(500).json({ 'error': 'Impossible d\'ajouter l\'utilisateur, veuillez choisir un autre nom d\'utilisateur'});
+                    return res.status(500).json({ 'error': 'Impossible d\'effectuer l\'inscription, renouveler la demande ou rapprochez d\'un administrateur.'});
                 });
             })
             .catch(error => res.status(500).json({ error }));
 
         } else {
-            return res.status(409).json({'error': 'L\'utilisateur existe deja'})
+                return res.status(409).json({'error': 'L\'adresse email saisie ne peut être pas utilisée, merci d\'en choisir une autre.'})
         }
     })
-    .catch(err => res.status(500).json({ 'error': 'Impossible de vérifier le status de l\'utilisateur' }));
+    .catch(err => res.status(500).json({ 'error': 'Problème de connexion au serveur, impossible de vérifier le status de l\'inscription.' }));
 };
 
-// Connexion d'un utilisateur existant
+/** Connexion d'un utilisateur existant
+ * @type {{email: string, password: string}} 
+*/
 exports.login = (req, res, next) => {
 
-    // Variables
-    let email       = req.body.email;
-    let password    = req.body.password;
+    /** Informations utilisateur */
+    const { email, password } = req.body;
     
-    // Vérification des variables
-    if (email == null || password == null) {
-        return res.status(400).json({'error' : 'Merci de remplir l\'ensemble des champs'});
-    }
-
-   User.findOne({
-    where: { email: email}
+    /** Vérification de l'utilisateur */
+    User.findOne({
+    where: { email: email }
     })
     .then(userFound => {
         if(userFound) {
             bcrypt.compare(password, userFound.password)
             .then(valid => {
-                if(valid) {
+                if (valid) {
                     return res.status(200).json({
-                        'userId': userFound.id,
-                        'token': userAuth.generateToken(userFound)
+                        'User ID'       : userFound.id,
+                        'User Lastname' : userFound.lastname,
+                        'User Firstname': userFound.firstname,
+                        'Last Login'    : userFound.lastLogin,
+                        'Created at'    : userFound.createdAt,
+                        'Updated at'    : userFound.updatedAt,
+                        'Token'         : userAuth.generateToken(userFound)
                     });
                 } else {
                     return res.status(401).json({ 'error' : 'Mot de passe incorrect !' });
@@ -101,56 +85,72 @@ exports.login = (req, res, next) => {
         }
 
     })
-    .catch(err => res.status(500).json({ 'error': 'Impossible de vérifier le status de l\'utilisateur' }));
+    .catch(err => res.status(500).json({ 'error': 'Problème de connexion au serveur, impossible d\'effectuer la connexion' }));
 };
 
-// Récupération d'un profil utilisateur
+/** Récupération d'un profil utilisateur
+ * @param {{userId}}
+ * @param {{token}}
+*/
 exports.getUser = (req, res, next) => {
-    // Getting auth header
-    var headerAuth  = req.headers['authorization'];
-    var userId      = userAuth.getUserId(headerAuth);
+    /** Récupération et vérification du token d'authentification */ 
+    const headerAuth  = req.headers['authorization'];
+    const userId      = userAuth.getUserId(headerAuth);
 
     if (userId < 0)
-      return res.status(400).json({ 'error': 'wrong token' });
+      return res.status(400).json({ 'error': 'Token non valide' });
 
-   User.findOne({
-      attributes: [ 'id', 'email', 'username', 'biography' ],
+    User.findOne({
+      attributes: [ 'id', 'firstname', 'lastname', 'email', 'lastLogin', 'biography', 'isAdmin', 'companyServices', 'coverPicture', 'profilePicture', 'createdAt', 'updatedAt' ],
       where: { id: userId }
     }).then(function(user) {
       if (user) {
         res.status(201).json(user);
       } else {
-        res.status(404).json({ 'error': 'user not found' });
+        res.status(404).json({ 'error': 'Utilisateur non trouvé' });
       }
     }).catch(function(err) {
-      res.status(500).json({ 'error': 'cannot fetch user' });
+      res.status(500).json({ 'error': 'Problème de connexion au serveur, impossible de récupérer les informations de l\'utilisateur' });
     });
 };
 
-// Mettre à jour un profil utilisateur
+/** Mise à jour d'un profil utilisateur
+ @param {{userId}}
+ @param {{token}}
+*/
 exports.updatetUser = (req, res, next) => {
-    // Getting auth header
+    /** Récupération et vérification du token d'authentification */
     const headerAuth  = req.headers['authorization'];
     const userId      = userAuth.getUserId(headerAuth);
 
-    // Params
-    const biography = req.body.biography;
+    /** Informations utilisateur */
+    const { firstname, lastname, email, password, biography, companyServices, coverPicture, profilePicture } = req.body;
 
     User.findOne({
-        attributes: [ 'id', 'email', 'username', 'biography' ],
+        attributes: [ 'id', 'firstname', 'lastname', 'email', 'biography', 'companyServices', 'coverPicture', 'profilePicture' ],
         where: { id: userId }
     })
     .then(userFound => {
         if(userFound) {
             userFound.update({
-                email: (email ? email : userFound.email),
-                firstname: (firstname ? firstname : userFound.firstname),
-                lastname: (lastname ? lastname : userFound.lastname),
-                biography: (biography ? biography : userFound.biography)
-            }) 
+                firstname       : (firstname ? firstname : userFound.firstname),
+                lastname        : (lastname ? lastname : userFound.lastname),
+                email           : (email ? email : userFound.email),
+                password        : (password ? password : userFound.password),
+                biography       : (biography ? biography : userFound.biography),
+                companyServices : (companyServices ? companyServices : userFound.companyServices),
+                coverPicture    : (coverPicture ? coverPicture : userFound.coverPicture),
+                profilePicture  : (profilePicture ? profilePicture : userFound.profilePicture)
+            })
+            .then(userFound => {
+                return res.status(201).json(userFound);
+            })
+            .catch(error => {
+                return res.status(500).json({ 'error': 'Impossible de mettre à jour l\'utilisateur.' })
+            })
         } else {
-            res.status(404).json({ 'error': 'user not found' });
+            res.status(404).json({ 'error': 'Utilisateur non trouvé' });
         }
     })
-    .catch(err => res.status(500).json({ 'error': 'cannot update user' }));
+    .catch(err => res.status(500).json({ 'error': 'Problème de connexion au serveur, impossible de mettre à jour les informations de l\'utilisateur' }));
 };
