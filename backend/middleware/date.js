@@ -15,6 +15,7 @@ const hourLocale = date1.toLocaleString('fr-FR', {
     minute: 'numeric',
 });
 
-const localeDate = 'le' + dateLocale + ' à ' + hourLocale;
+const localeDate = `le ${dateLocale} à ${hourLocale}.`;
 
 return localeDate;
+
