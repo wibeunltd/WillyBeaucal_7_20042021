@@ -27,7 +27,7 @@ module.exports = {
       },
       lastLogin: {
         allowNull: false,
-        type: Sequelize.STRING(191),
+        type: Sequelize.DATE,
       },
       biography: {
         allowNull: true,
