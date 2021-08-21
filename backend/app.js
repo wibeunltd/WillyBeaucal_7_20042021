@@ -30,13 +30,13 @@ app.use((req, res, next) => {
 // Déclarations des routes
 const userRoutes  = require('./routes/userRoutes');
 
-// Routes utilisateurs
-app.use('/api/users/', userRoutes);
-
 // Route initialisation
 app.get('/', (req,res) => {
-  res.json(`Hello 😎`)
+  res.json(`Backend du réseau social Moments de Groupomania 😎`)
 })
+
+// Routes utilisateurs
+app.use('/api/users/', userRoutes);
 
 //Gestion des erreurs 404
 app.use(({ res }) => {
