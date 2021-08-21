@@ -9,7 +9,7 @@ const routes = [
     path: '/', 
     component: Login,
     meta: {
-      title: '',
+      title: 'Authentification | Moments from Groupomania',
     }
   },
   { 
@@ -17,7 +17,7 @@ const routes = [
     path: '/profile', 
     component: Profile,
     meta: {
-      title: '',
+      title: 'Mon profil | Moments from Groupomania',
     },
     props:true 
   },

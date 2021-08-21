@@ -3,22 +3,22 @@ import { createStore } from 'vuex'
 const axios = require('axios');
 
 const instance = axios.create({
-  baseURL: 'http://localhost:3000/api/users/',
-  withCredentials: true ,
-    credentials: 'include',
-    headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'X-Requested-With': 'XMLHttpRequest'
-    }
+  baseURL: 'http://localhost:3000/api/users',
+  withCredentials: false,
+  credentials: 'include',
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+    'X-Requested-With': 'XMLHttpRequest'
+  }
 });
 
 let user = localStorage.getItem('user');
 if (!user) {
- user = {
+  user = {
     userId: -1,
     token: '',
-  }; 
+  };
 } else {
   try {
     user = JSON.parse(user);
@@ -37,10 +37,10 @@ const store = createStore({
     status: '',
     user: user,
     userInfos: {
-      nom:'',
-      prenom: '',
+      lastname: '',
+      firstname: '',
       email: '',
-      photo: '',
+      profilePicture: '',
     },
   },
   mutations: {
@@ -64,43 +64,43 @@ const store = createStore({
     }
   },
   actions: {
-    login: ({commit}, userInfos) => {
+    login: ({ commit }, userInfos) => {
       commit('setStatus', 'loading');
       return new Promise((resolve, reject) => {
         instance.post('/login', userInfos)
-        .then(function (response) {
-          commit('setStatus', '');
-          commit('logUser', response.data);
-          resolve(response);
-        })
-        .catch(function (error) {
-          commit('setStatus', 'error_login');
-          reject(error);
-        });
+          .then(function (response) {
+            commit('setStatus', '');
+            commit('logUser', response.data);
+            resolve(response);
+          })
+          .catch(function (error) {
+            commit('setStatus', 'error_login');
+            reject(error);
+          });
       });
     },
-    createAccount: ({commit}, userInfos) => {
+    createAccount: ({ commit }, userInfos) => {
       commit('setStatus', 'loading');
       return new Promise((resolve, reject) => {
         commit;
-        instance.post('/createAccount', userInfos)
-        .then(function (response) {
-          commit('setStatus', 'created');
-          resolve(response);
-        })
-        .catch(function (error) {
-          commit('setStatus', 'error_create');
-          reject(error);
-        });
+        instance.post('/register', userInfos)
+          .then(function (response) {
+            commit('setStatus', 'created');
+            resolve(response);
+          })
+          .catch(function (error) {
+            commit('setStatus', 'error_create');
+            reject(error);
+          });
       });
     },
-    getUserInfos: ({commit}) => {
-      instance.post('/infos')
-      .then(function (response) {
-        commit('userInfos', response.data.infos);
-      })
-      .catch(function () {
-      });
+    getUserInfos: ({ commit }) => {
+      instance.get('/profile')
+        .then(function (response) {
+          commit('userInfos', response.data.infos);
+        })
+        .catch(function () {
+        });
     }
   }
 })

@@ -8,11 +8,14 @@
       <input v-model="email" class="form-row__input" type="text" placeholder="Adresse mail"/>
     </div>
     <div class="form-row" v-if="mode == 'create'">
-      <input v-model="prenom" class="form-row__input" type="text" placeholder="Prénom"/>
-      <input v-model="nom" class="form-row__input" type="text" placeholder="Nom"/>
+      <input v-model="firstname" class="form-row__input" type="text" placeholder="Prénom"/>
+      <input v-model="lastname" class="form-row__input" type="text" placeholder="Nom"/>
     </div>
     <div class="form-row">
       <input v-model="password" class="form-row__input" type="password" placeholder="Mot de passe"/>
+    </div>
+    <div class="form-row" v-if="mode == 'create'">
+      <input v-model="pwdConfirm" class="form-row__input" type="password" placeholder="Confirmation du mot de passe"/>
     </div>
     <div class="form-row" v-if="mode == 'login' && status == 'error_login'">
       Adresse mail et/ou mot de passe invalide
@@ -37,15 +40,17 @@
 
 import { mapState } from 'vuex'
 
+
 export default {
   name: 'Login',
   data: function () {
     return {
       mode: 'login',
       email: '',
-      prenom: '',
-      nom: '',
+      firstname: '',
+      lastname: '',
       password: '',
+      pwdConfirm: '',
     }
   },
   mounted: function () {
@@ -57,7 +62,7 @@ export default {
   computed: {
     validatedFields: function () {
       if (this.mode == 'create') {
-        if (this.email != "" && this.prenom != "" && this.nom != "" && this.password != "") {
+        if (this.email != "" && this.firstname != "" && this.lastname != "" && this.password != "" && this.pwdConfirm != "") {
           return true;
         } else {
           return false;
@@ -94,9 +99,10 @@ export default {
       const self = this;
       this.$store.dispatch('createAccount', {
         email: this.email,
-        nom: this.lastname,
-        prenom: this.firstname,
+        lastname: this.lastname,
+        firstname: this.firstname,
         password: this.password,
+        pwdConfirm: this.pwdConfirm,
       }).then(function () {
         self.login();
       }, function (error) {

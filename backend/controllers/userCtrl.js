@@ -2,6 +2,7 @@
 const bcrypt    = require('bcrypt');
 const userAuth  = require('../middleware/userAuth');
 const { User }  = require('../models');
+const localeDate = require('../middleware/date');
 
 
 /** Sécurisation des variables d'environnement par un stockage séparé */ 
@@ -13,7 +14,7 @@ require('dotenv').config();
 exports.register = (req, res, next) => {
     /** Informations utilisateur */
     const { firstname, lastname, email, password } = req.body;
-   
+
     /** Vérification de l'utilisateur */
     User.findOne({
         attributes: ['email'],
@@ -28,13 +29,15 @@ exports.register = (req, res, next) => {
                     lastname        : lastname,
                     email           : email,
                     password        : hash,
+                    coverPicture    : "https://picsum.photos/1000/500",
                     profilePicture  : "https://eu.ui-avatars.com/api/?background=random&name=" + firstname + "+" + lastname,
                     isAdmin         : false,
+                    lastLogin       : localeDate
                 })
                 .then(newUser => {
                     return res.status(201).json({
                         'message': 'Inscription réalisée avec succès',
-                        'User ID': newUser.id
+                        'User ID': newUser.id,
                     })
                 })
                 .catch(error => {
@@ -118,7 +121,7 @@ exports.getUser = (req, res, next) => {
  @param {{userId}}
  @param {{token}}
 */
-exports.updatetUser = (req, res, next) => {
+exports.updateUser = (req, res, next) => {
     /** Récupération et vérification du token d'authentification */
     const headerAuth  = req.headers['authorization'];
     const userId      = userAuth.getUserId(headerAuth);

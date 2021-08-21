@@ -26,9 +26,10 @@ module.exports = (sequelize, DataTypes) => {
     companyServices: DataTypes.STRING,
     coverPicture: DataTypes.STRING,
     profilePicture: DataTypes.STRING
-  }, {
+  },{
     sequelize,
     modelName: 'User',
+    timestamps: true,
   });
   return User;
 };

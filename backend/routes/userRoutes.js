@@ -14,6 +14,6 @@ const accountLimiter = require('../middleware/account-limit-requests');
 router.post('/register', registerValidationRules(), validate, userCtrl.register);
 router.post('/login', loginValidationRules(), validate, userCtrl.login);
 router.get('/profile', userCtrl.getUser);
-router.put('/profile', userCtrl.updatetUser);
+router.put('/profile', userCtrl.updateUser);
 
 module.exports = router;
