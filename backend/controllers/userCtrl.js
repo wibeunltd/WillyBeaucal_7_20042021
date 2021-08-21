@@ -1,57 +1,70 @@
-/** Déclarations des modules requis */
+// Modules requis
 const bcrypt    = require('bcrypt');
+const fs        = require('fs');
 const userAuth  = require('../middleware/userAuth');
 const { User }  = require('../models');
-const localeDate = require('../middleware/date');
+const dateNow = require('../middleware/date');
 
-
-/** Sécurisation des variables d'environnement par un stockage séparé */ 
+// Variable d'environnement
 require('dotenv').config();
 
 /** Inscription d'un nouvel utilisateur
  * @type {{firstname: string, lastname: string, email: string, password: string}}
  * */ 
 exports.register = (req, res, next) => {
-    /** Informations utilisateur */
+    // Champs requête
     const { firstname, lastname, email, password } = req.body;
 
-    /** Vérification de l'utilisateur */
+    // Checking
     User.findOne({
         attributes: ['email'],
         where: { email: email }
     })
-    .then(userFound => {
-        if(!userFound) {
+    .then(user => {
+        // Gestion administrateur 
+        const beAdmin = (email == 'hello@groupomania.fr') ? true : false;
+
+        if(!user) {
             bcrypt.hash(password, 10)
             .then(hash => {
-                const user = User.create({
+                User.create({
                     firstname       : firstname,
                     lastname        : lastname,
                     email           : email,
                     password        : hash,
-                    coverPicture    : "https://picsum.photos/1000/500",
-                    profilePicture  : "https://eu.ui-avatars.com/api/?background=random&name=" + firstname + "+" + lastname,
-                    isAdmin         : false,
-                    lastLogin       : localeDate
+                    coverPicture    : `https://picsum.photos/1000/500`,
+                    profilePicture  : `https://eu.ui-avatars.com/api/?background=random&name=${firstname}+${lastname}`,
+                    isAdmin         : beAdmin,
+                    lastLogin       : dateNow
                 })
-                .then(newUser => {
-                    return res.status(201).json({
-                        'message': 'Inscription réalisée avec succès',
-                        'User ID': newUser.id,
-                    })
+                .then(newUser =>{
+                    const message = `L'inscription de l'utilisateur ${firstname} ${lastname} a aboutie avec succès.`
+                    return res.status(201).json({ message })
                 })
                 .catch(error => {
-                    return res.status(500).json({ 'error': 'Impossible d\'effectuer l\'inscription, renouveler la demande ou rapprochez d\'un administrateur.'});
+                    /* if(error instanceof ValidationError) {
+                        return res.status(400).json({ message: error.message, data: error })
+                    } */
+                    const message = `L'inscription n'a pas pu aboutir correctement. Merci de réessayer dans quelques instants.`
+                    return res.status(500).json({ message, data:error })
                 });
             })
-            .catch(error => res.status(500).json({ error }));
+            .catch(error => {
+                const message = `Un problème serveur, ne permet pas la finalisation de l'inscription. Merci de réessayer dans quelques instants.`
+                return res.status(500).json({ message, data:error })
+            });
 
         } else {
-                return res.status(409).json({'error': 'L\'adresse email saisie ne peut être pas utilisée, merci d\'en choisir une autre.'})
+            const message = `L'adresse email saisie ne peut pas être utilisée. Merci d'en choisir une autre.`
+            return res.status(409).json({ message, data: error })
         }
     })
-    .catch(err => res.status(500).json({ 'error': 'Problème de connexion au serveur, impossible de vérifier le status de l\'inscription.' }));
+    .catch(error => {
+        const message = `Un problème serveur, ne permet pas la verification du statut d'inscription. Merci de réessayer dans quelques instants.`
+        return res.status(500).json({ message, data: error })
+    });
 };
+
 
 /** Connexion d'un utilisateur existant
  * @type {{email: string, password: string}} 
