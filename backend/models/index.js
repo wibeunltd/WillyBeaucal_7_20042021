@@ -1,6 +1,6 @@
 'use strict';
 /** 
- * Déclarations des modules requis
+ * Modules requis
 */
 const fs = require('fs');
 const path = require('path');
@@ -11,7 +11,7 @@ const config = require(__dirname + '/../config/db.config.js')[env];
 const db = {};
 
 /**
- * Paramétrages sequelize et de la base de données a utiliser
+ * Paramétrages sequelize et base de données
  */
 let sequelize;
 if(process.env.NODE_ENV !== 'undefined' && process.env.NODE_ENV === 'development') {
@@ -40,11 +40,11 @@ if(process.env.NODE_ENV !== 'undefined' && process.env.NODE_ENV === 'development
 }
 
 /**
- * Test de connexion
+ * Connexion base de données
  */
 sequelize.authenticate()
-.then(() => console.log('😀 La connexion à la base de données', config.DB, 'pour l\'environnement', env, 'a été établie avec succès !'))
-.catch((error) => console.log('😲 Impossible de se connecter à la base de données :', error))
+.then(() => console.log(`😀 La connexion à la base de données ${config.DB}, pour l'environnement ${env}, a été établie avec succès !`))
+.catch((error) => console.log(`😲 Impossible de se connecter à la base de données.`, error))
 
 
 fs

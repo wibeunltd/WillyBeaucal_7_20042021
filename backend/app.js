@@ -1,4 +1,4 @@
-// Déclarations des modules requis 
+/**Modules requis */ 
 const express = require('express');
 const helmet  = require('helmet');
 const cors    = require('cors');
