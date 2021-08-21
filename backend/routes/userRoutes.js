@@ -1,10 +1,10 @@
-// Déclarations des modules requis
-const express   = require('express');
-const router    = express.Router();
+// Modules requis
+const router   = require('express').Router();
 
-// Déclaration et import du controller user
+// Controller user
 const userCtrl = require('../controllers/userCtrl');
 
+// Règles de validations
 const { registerValidationRules, loginValidationRules, validate } = require('../middleware/userValidator');
 
 // Gestion du nombre de requêtes utilisateurs
