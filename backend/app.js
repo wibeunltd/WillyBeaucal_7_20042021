@@ -1,39 +1,47 @@
-/**Modules requis */ 
+// Modules requis 
 const express = require('express');
+const morgan  = require('morgan');
 const helmet  = require('helmet');
 const cors    = require('cors');
 const path    = require('path');
 
-// Sécurisation des variables d'environnement par un stockage séparé
+// Variables d'environnement
 require('dotenv').config();
 
-// Déclarations des routes
-const userRoutes  = require('./routes/userRoutes');
-
-// Création de l'instance de l'application
+// Instanciation de l'application
 const app = express();
 
-// Sécurisation contre les attaques XSS
-app.use(helmet());
+app
+.use(express.json())
+.use(express.urlencoded({ extended: true }))
+.use(morgan('dev'))
+.use(helmet())
+.use(cors())
+.use('/images', express.static(path.join(__dirname, 'images')))
 
-app.use(cors());
-
-// Permission des requêtes CORS
+// Requêtes CORS
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', process.env.ALLOWED_ORIGINS);
   res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
   next();
-  });
+});
 
-// Extraction des données JSON du corps de requête
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// Gestion du dossier de sauvegarde des images uploadées
-app.use('/images', express.static(path.join(__dirname, 'images')));
+// Déclarations des routes
+const userRoutes  = require('./routes/userRoutes');
 
 // Routes utilisateurs
 app.use('/api/users/', userRoutes);
+
+// Route initialisation
+app.get('/', (req,res) => {
+  res.json(`Hello 😎`)
+})
+
+//Gestion des erreurs 404
+app.use(({ res }) => {
+  const message = `Désolé, la ressource demandée n'est plus disponible à cette adresse, où n'existe plus. Merci de revenir à la page d'accueil.`
+  res.status(404).json({ message })
+})
 
 module.exports = app;
