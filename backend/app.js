@@ -4,6 +4,7 @@ const morgan  = require('morgan');
 const helmet  = require('helmet');
 const cors    = require('cors');
 const path    = require('path');
+const favicon = require('serve-favicon');
 
 // Variables d'environnement
 require('dotenv').config();
@@ -17,8 +18,8 @@ app
 .use(morgan('dev'))
 .use(helmet())
 .use(cors())
-.use('/images', express.static(path.join(__dirname, 'images')))
-
+.use(express.static(path.join(__dirname, '/public/')))
+.use(favicon(path.join(__dirname, '/public/images/favicon.ico')))
 // Requêtes CORS
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', process.env.ALLOWED_ORIGINS);
