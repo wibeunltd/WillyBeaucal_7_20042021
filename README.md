@@ -8,7 +8,7 @@ Construire un réseau social interne pour les employés d'une entreprise.
 ```
 > cd backend
 > Executer la commande npm install
-> Lancer le backend avec nodemon server
+> Lancer le backend avec npm run start
 ```
 
 - Dossier frontend
