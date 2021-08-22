@@ -3,7 +3,7 @@ const bcrypt    = require('bcrypt');
 const fs        = require('fs');
 const userAuth  = require('../middleware/userAuth');
 const { User }  = require('../models');
-const dateNow = require('../middleware/date');
+const dateNow   = require('../middleware/date');
 
 // Variable d'environnement
 require('dotenv').config();
@@ -22,7 +22,7 @@ exports.register = (req, res, next) => {
     })
     .then(user => {
         // Gestion administrateur 
-        const beAdmin = (email == 'hello@groupomania.fr') ? true : false;
+        const role = (email == 'hello@groupomania.fr') ? true : false;
 
         if(!user) {
             bcrypt.hash(password, 10)
@@ -34,17 +34,19 @@ exports.register = (req, res, next) => {
                     password        : hash,
                     coverPicture    : `https://picsum.photos/1000/500`,
                     profilePicture  : `https://eu.ui-avatars.com/api/?background=random&name=${firstname}+${lastname}`,
-                    isAdmin         : beAdmin,
+                    isAdmin         : role,
                     lastLogin       : dateNow
                 })
                 .then(newUser =>{
-                    const message = `L'inscription de l'utilisateur ${firstname} ${lastname} a aboutie avec succès.`
-                    return res.status(201).json({ message })
+                    fs.mkdir((`./public/users/${newUser.id}`), {recursive:true}, error =>{
+                        if(error) {
+                            return console.error(error);
+                        }
+                        const message = `L'inscription de l'utilisateur ${firstname} ${lastname} a aboutie avec succès.`
+                        return res.status(201).json({ message })
+                    })
                 })
                 .catch(error => {
-                    /* if(error instanceof ValidationError) {
-                        return res.status(400).json({ message: error.message, data: error })
-                    } */
                     const message = `L'inscription n'a pas pu aboutir correctement. Merci de réessayer dans quelques instants.`
                     return res.status(500).json({ message, data:error })
                 });
