@@ -29,11 +29,11 @@ exports.registerValidationRules = () => {
 exports.loginValidationRules = () => {
     return [
         body('email')
-            .notEmpty().withMessage('L\'email est obligatoire, le champ ne peut pas être vide.')
-            .isEmail().withMessage('Merci de saisir une adresse email valide'),
+            .notEmpty().withMessage(`L'email est une propriété requise, il ne peut pas être vide.`)
+            .isEmail().withMessage(`L'adresse email saisie, n'est pas une adresse valide. Merci de saisir une adresse mail valide.`),
         body('password')
-            .notEmpty().withMessage('Le mot de passe est obligatoire, le champ ne peut pas être vide.')
-            .isStrongPassword().withMessage('Le mot de passe doit être fort : soit 8 caractères minimum, 1 majuscule minimum,  1 symbole minimum, 1 chiffre minimum'),
+            .notEmpty().withMessage(`Le mot de passe est une propriété requise, il ne peut pas être vide.`)
+            .isStrongPassword().withMessage(`Votre mot de passe doit être fort. Il doit contenir au minimum 8 caractères dont 1 majuscule minimum, 1 symbole minimum et 1 chiffre minimum.`),
     ]
 };
 
