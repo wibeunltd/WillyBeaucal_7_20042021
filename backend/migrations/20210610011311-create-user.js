@@ -50,6 +50,15 @@ module.exports = {
         allowNull: true,
         type: Sequelize.STRING(191)
       },
+      active: {
+        allowNull: false,
+        type: Sequelize.INTEGER,
+        default: 0
+      },
+      token: {
+        allowNull: false,
+        type: Sequelize.STRING(191)
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
