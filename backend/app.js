@@ -20,6 +20,7 @@ app
 .use(cors())
 .use(express.static(path.join(__dirname, '/public/')))
 .use(favicon(path.join(__dirname, '/public/images/favicon.ico')))
+
 // Requêtes CORS
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', process.env.ALLOWED_ORIGINS);
@@ -37,7 +38,7 @@ app.get('/', (req,res) => {
 })
 
 // Routes utilisateurs
-app.use('/api/users/', userRoutes);
+app.use('/api/auth/users/', userRoutes);
 
 //Gestion des erreurs 404
 app.use(({ res }) => {
