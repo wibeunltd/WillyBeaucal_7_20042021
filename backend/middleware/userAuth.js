@@ -1,35 +1,20 @@
-// Déclarations des modules requis
+// Modules requis
 const jwt = require('jsonwebtoken');
 
-// Sécurisation des variables d'environnement par un stockage séparé
+// Variables d'environnement
 require('dotenv').config();
 
-module.exports = {
-  /** Création du token */
-    generateToken: function(userData) {
-        return jwt.sign({
-          userId: userData.id,
-          isAdmin: userData.isAdmin
-        },
-        process.env.JWT_TOKEN,
-        {
-          expiresIn: '1h'
-        })
-      },
-  /** Vérification de l'autorisation : token et id utilisateur */
-    parseAuthorization: function(authorization) {
-        return (authorization != null) ? authorization.replace('Bearer ', '') : null;
-      },
-    getUserId: function(authorization) {
-        var userId = -1;
-        var token = module.exports.parseAuthorization(authorization);
-        if(token != null) {
-          try {
-            var jwtToken = jwt.verify(token, process.env.JWT_TOKEN);
-            if(jwtToken != null)
-              userId = jwtToken.userId;
-          } catch(err) { }
-        }
-        return userId;
+exports.isLoggedIn = (req, res, next) => {
+    try {
+        const token = req.headers.authorization.split('')[1];
+        const decoded = jwt.verify(
+            token,
+            process.env.ACCESS_TOKEN
+        )
+        req.userData = decoded;
+        next();
+    } catch (error) {
+        const message = `Votre session n'est pas valide. Merci de vous connecter.`
+        return res.status(401).json({ message, data: error})
     }
 }
