@@ -20,6 +20,7 @@ app
 .use(cors())
 .use(express.static(path.join(__dirname, '/public/')))
 .use(favicon(path.join(__dirname, '/public/images/favicon.ico')))
+.use('/', require('./routes/initRoutes'))
 
 // Requêtes CORS
 app.use((req, res, next) => {
@@ -29,16 +30,9 @@ app.use((req, res, next) => {
   next();
 });
 
-// Déclarations des routes
-const userRoutes  = require('./routes/userRoutes');
-
-// Route initialisation
-app.get('/', (req,res) => {
-  res.json(`Backend du réseau social Moments de Groupomania 😎`)
-})
 
 // Routes utilisateurs
-app.use('/api/auth/users/', userRoutes);
+app.use('/api/users/', require('./routes/userRoutes'));
 
 //Gestion des erreurs 404
 app.use(({ res }) => {
