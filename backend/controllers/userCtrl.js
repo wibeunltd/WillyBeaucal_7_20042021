@@ -1,9 +1,10 @@
 // Modules requis
-const bcrypt    = require('bcrypt');
-const fs        = require('fs');
-const userAuth  = require('../middleware/userAuth');
-const { User }  = require('../models');
-const dateNow   = require('../middleware/date');
+const bcrypt        = require('bcrypt');
+const fs            = require('fs');
+const { User }      = require('../models');
+const dateFormat    = require('dateformat');
+const mailer        = require('../utils/mailer');
+const jwt           = require('jsonwebtoken');
 
 // Variable d'environnement
 require('dotenv').config();
@@ -11,7 +12,7 @@ require('dotenv').config();
 /** Inscription d'un nouvel utilisateur
  * @type {{firstname: string, lastname: string, email: string, password: string}}
  * */ 
-exports.register = (req, res, next) => {
+exports.register = (req, res) => {
     // Champs requête
     const { firstname, lastname, email, password } = req.body;
 
@@ -35,9 +36,41 @@ exports.register = (req, res, next) => {
                     coverPicture    : `https://picsum.photos/1000/500`,
                     profilePicture  : `https://eu.ui-avatars.com/api/?background=random&name=${firstname}+${lastname}`,
                     isAdmin         : role,
-                    lastLogin       : dateNow
+                    lastLogin       : dateFormat(new Date(), "yyyy-mm-dd HH:MM:ss"),
                 })
-                .then(newUser =>{
+                .then(newUser => {
+                    // Attribution de la valeur id à la valeur token
+                    User.findOne({
+                        where: { id: newUser.id}
+                    })
+                    .then(user => {
+                            user.update({
+                                token: (newUser.id).toString()
+                            })
+                    // Mail validation d'inscription
+                            .then(() => {
+                                const userId = newUser.id
+                                const createdAt = dateFormat(newUser.createdAt, "dd-mm-yyyy HH:MM:ss")
+                                const token = newUser.id
+                                mailer.sendOptInMail(
+                                    email,
+                                    userId,
+                                    firstname,
+                                    createdAt,
+                                    token
+                                )
+                            })
+                            .catch(error => {
+                                const message = `Un problème serveur, ne permet pas l'envoi du mail de confirmation. Merci de réessayer dans quelques instants.`
+                                return res.status(500).json({ message, data: error })
+                            })
+                    })
+                    .catch(error => {
+                        const message = `Un problème serveur, ne permet pas la mise à jour de la valeur token. Merci de réessayer dans quelques instants.`
+                        return res.status(500).json({ message, data: error })
+                    })
+
+                    // Création dossier utilisateur
                     fs.mkdir((`./public/users/${newUser.id}`), {recursive:true}, error =>{
                         if(error) {
                             return console.error(error);
@@ -48,17 +81,17 @@ exports.register = (req, res, next) => {
                 })
                 .catch(error => {
                     const message = `L'inscription n'a pas pu aboutir correctement. Merci de réessayer dans quelques instants.`
-                    return res.status(500).json({ message, data:error })
+                    return res.status(500).json({ message, data: error })
                 });
             })
             .catch(error => {
                 const message = `Un problème serveur, ne permet pas la finalisation de l'inscription. Merci de réessayer dans quelques instants.`
-                return res.status(500).json({ message, data:error })
+                return res.status(500).json({ message, data: error })
             });
 
         } else {
             const message = `L'adresse email saisie ne peut pas être utilisée. Merci d'en choisir une autre.`
-            return res.status(409).json({ message, data: error })
+            return res.status(409).json({ message })
         }
     })
     .catch(error => {
@@ -71,40 +104,71 @@ exports.register = (req, res, next) => {
 /** Connexion d'un utilisateur existant
  * @type {{email: string, password: string}} 
 */
-exports.login = (req, res, next) => {
+exports.login = (req, res) => {
 
-    /** Informations utilisateur */
+    /** Champs requête */
     const { email, password } = req.body;
     
-    /** Vérification de l'utilisateur */
+    /** Checking */
     User.findOne({
-    where: { email: email }
+        where: { email: email }
     })
-    .then(userFound => {
-        if(userFound) {
-            bcrypt.compare(password, userFound.password)
+    .then(user => {
+        if(user) {
+            bcrypt.compare(password, user.password)
             .then(valid => {
                 if (valid) {
+                    /* if(user.active == 0) {
+                        const message = `Votre compte n'est pas activé. Merci de l'activer via le lien reçu par mail à l'adresse ${user.email}.`
+                        return res.status(201).json({ message })
+                    } */
+
+                    const token = jwt.sign({
+                        userId: user.id,
+                        isAdmin: user.isAdmin
+                    },
+                    process.env.ACCESS_TOKEN,
+                    {
+                        expiresIn: '7d'
+                    })
+
                     return res.status(200).json({
-                        'User ID'       : userFound.id,
-                        'User Lastname' : userFound.lastname,
-                        'User Firstname': userFound.firstname,
-                        'Last Login'    : userFound.lastLogin,
-                        'Created at'    : userFound.createdAt,
-                        'Updated at'    : userFound.updatedAt,
-                        'Token'         : userAuth.generateToken(userFound)
+                        'Status'     : "Logged in !",
+                        'ID'         : user.id,
+                        'Is Admin'   : user.isAdmin,
+                        'Lastname'   : user.lastname,
+                        'Firstname'  : user.firstname,
+                        'Last Login' : dateFormat(user.lastLogin, "dd-mm-yyyy HH:MM:ss"),
+                        'Created at' : dateFormat(user.createdAt, "dd-mm-yyyy HH:MM:ss"),
+                        'Updated at' : dateFormat(user.updatedAt, "dd-mm-yyyy HH:MM:ss"),
+                        'Active'     : user.active,
+                        'Token'      : token
                     });
                 } else {
-                    return res.status(401).json({ 'error' : 'Mot de passe incorrect !' });
+                    const message = `Les informations d'identifications fournies sont invalides. Merci de vérifier vos saisies.`
+                    return res.status(401).json({ message })
                 }
             })
+            .catch(error => {
+                const message = `Échec de la connexion, impossible d'accéder aux services en ligne. Merci de réessayer dans quelques instants.`
+                return res.status(500).json({ message, data: error })
+            })
         } else {
-            return res.status(404).json({ 'error': 'Utilisateur non trouvé' })
+            const message = `Les informations d'identifications fournies sont invalides. Merci de vérifier vos saisies.`
+            return res.status(404).json({ message })
         }
-
     })
-    .catch(err => res.status(500).json({ 'error': 'Problème de connexion au serveur, impossible d\'effectuer la connexion' }));
+    .catch(error => {
+        const message = `Échec de la connexion, impossible d'accéder aux services en ligne. Merci de réessayer dans quelques instants.`
+        return res.status(500).json({ message, data: error })
+    });
 };
+
+/** Validation création de compte */
+exports.verifyUserAccount = (req, res, next) => {
+
+}
+
 
 /** Récupération d'un profil utilisateur
  * @param {{userId}}
