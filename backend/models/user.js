@@ -25,7 +25,9 @@ module.exports = (sequelize, DataTypes) => {
     isAdmin: DataTypes.BOOLEAN,
     companyServices: DataTypes.STRING,
     coverPicture: DataTypes.STRING,
-    profilePicture: DataTypes.STRING
+    profilePicture: DataTypes.STRING,
+    active: DataTypes.INTEGER,
+    token: DataTypes.STRING
   },{
     sequelize,
     modelName: 'User',
